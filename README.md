@@ -1,29 +1,43 @@
-# MCMV RJ Platform Showcase
+# Work in progress - Trabalho em progresso
 
-Fundação técnica pública, sanitizada e demonstrativa de uma aplicação Next.js.
-Esta etapa não contém funcionalidades do produto privado, Prisma ou integrações externas.
 
-## Desenvolvimento
+# MCMV RJ Platform Showcase - MCMV RJ Plataforma Vitrine
 
-Use Node.js 22 LTS (22.13 ou superior) e npm.
+Public and sanitized engineering showcase based on a real-world
+real estate platform.
+Demonstração pública e higienizada de engenharia, baseada em uma plataforma imobiliária do mundo real.
 
-```sh
-npm ci
-npm run dev
-```
+> This repository is currently being rebuilt as a public 
+> Este repositório está sendo reconstruído como uma vitrine pública.
 
-Acesse http://localhost:3000.
+> Production infrastructure, customer data and proprietary integrations
+are intentionally excluded.
+> A infraestrutura de produção, os dados de clientes e as integrações proprietárias
+são intencionalmente excluídos.
 
-## Comandos
+## Planned architecture - Arquitetura planejada
 
-- `npm run build`: gera o build de produção.
-- `npm run start`: inicia o build de produção.
-- `npm run lint`: executa o ESLint.
-- `npm run typecheck`: executa `tsc --noEmit` em modo strict.
-- `npm run test`: executa o teste smoke do Vitest.
-- `npm run test:watch`: executa o Vitest em modo watch.
-- `npm run format`: formata os arquivos com Prettier.
-- `npm run format:check`: verifica a formatação.
+Next.js
+React
+TypeScript
+PostgreSQL
+Prisma
+Vitest
+GitHub Actions
 
-O App Router usa `app/` na raiz. O alias `@/*` aponta para a raiz do projeto.
-Tailwind CSS 4 usa o plugin PostCSS. O teste smoke usa o ambiente Node.
+## Engineering goals - Objetivos de Engenharia
+
+- reproducible local development
+- automated tests
+- CI validation
+- clean architecture
+- optional external integrations
+- no dependency on paid services
+
+## Local development - Desenvolvimento Local
+
+See docs/local-development.md
+
+## Project status - Status do projeto
+
+Foundation / migration in progress.
