@@ -1,6 +1,6 @@
 # Arquitetura planejada
 
-Esta é a fonte compartilhada de orientação arquitetural para humanos, Codex e Claude Code no MCMV RJ Platform Showcase. A arquitetura abaixo é planejada, não uma descrição de funcionalidades já implementadas. Hoje o repositório contém a fundação Next.js com App Router, TypeScript strict e um teste smoke; PostgreSQL e providers ainda não estão implementados.
+Esta é a fonte compartilhada de orientação arquitetural para humanos, Codex e Claude Code no MCMV RJ Platform Showcase. A arquitetura abaixo é planejada, não uma descrição de funcionalidades já implementadas. Hoje o repositório contém a fundação Next.js com App Router, TypeScript strict e um teste smoke; PostgreSQL local e o schema Prisma mínimo estão implementados; providers e integração da interface com o banco ainda são planejados. Consulte [Banco de dados local](database.md).
 
 ## Stack e limites
 

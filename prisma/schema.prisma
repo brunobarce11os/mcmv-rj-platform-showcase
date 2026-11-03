@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  BROKER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  SCHEDULED
+  WON
+  LOST
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id                String             @id @default(cuid())
+  name              String
+  email             String             @unique
+  role              UserRole           @default(BROKER)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  assignedLeads     Lead[]
+  notes             LeadNote[]
+  appointments      Appointment[]
+  queueParticipants QueueParticipant[]
+  distributionLogs  DistributionLog[]
+}
+
+model Builder {
+  id         String     @id @default(cuid())
+  name       String
+  slug       String     @unique
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  properties Property[]
+}
+
+model Property {
+  id           String          @id @default(cuid())
+  builderId    String
+  name         String
+  slug         String          @unique
+  description  String
+  city         String
+  neighborhood String
+  minPrice     Decimal         @db.Decimal(12, 2)
+  maxPrice     Decimal         @db.Decimal(12, 2)
+  active       Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  builder      Builder         @relation(fields: [builderId], references: [id], onDelete: Restrict)
+  images       PropertyImage[]
+  types        PropertyType[]
+  leads        LeadProperty[]
+  simulations  Simulation[]
+
+  @@index([builderId])
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  propertyId String
+  url        String
+  alt        String
+  position   Int      @default(0)
+  createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, position])
+}
+
+model PropertyType {
+  id         String   @id @default(cuid())
+  propertyId String
+  name       String
+  bedrooms   Int
+  bathrooms  Int
+  area       Decimal  @db.Decimal(8, 2)
+  price      Decimal  @db.Decimal(12, 2)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+}
+
+model Lead {
+  id               String            @id @default(cuid())
+  name             String
+  email            String
+  phone            String
+  status           LeadStatus        @default(NEW)
+  source           String
+  assignedToId     String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  assignedTo       User?             @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  notes            LeadNote[]
+  properties       LeadProperty[]
+  simulations      Simulation[]
+  appointments     Appointment[]
+  distributionLogs DistributionLog[]
+
+  @@index([assignedToId])
+  @@index([status])
+}
+
+model LeadNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([leadId])
+  @@index([authorId])
+}
+
+model LeadProperty {
+  id         String   @id @default(cuid())
+  leadId     String
+  propertyId String
+  createdAt  DateTime @default(now())
+  lead       Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([leadId, propertyId])
+  @@index([propertyId])
+}
+
+model Simulation {
+  id             String    @id @default(cuid())
+  leadId         String?
+  propertyId     String?
+  propertyValue  Decimal   @db.Decimal(12, 2)
+  downPayment    Decimal   @db.Decimal(12, 2)
+  financedAmount Decimal   @db.Decimal(12, 2)
+  monthlyIncome  Decimal   @db.Decimal(12, 2)
+  createdAt      DateTime  @default(now())
+  lead           Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  property       Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([propertyId])
+}
+
+model Appointment {
+  id          String            @id @default(cuid())
+  leadId      String
+  brokerId    String?
+  scheduledAt DateTime
+  status      AppointmentStatus @default(SCHEDULED)
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  lead        Lead              @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  broker      User?             @relation(fields: [brokerId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([brokerId, scheduledAt])
+}
+
+model DistributionQueue {
+  id           String             @id @default(cuid())
+  name         String
+  active       Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  participants QueueParticipant[]
+  logs         DistributionLog[]
+}
+
+model QueueParticipant {
+  id        String            @id @default(cuid())
+  queueId   String
+  userId    String
+  active    Boolean           @default(true)
+  position  Int
+  createdAt DateTime          @default(now())
+  queue     DistributionQueue @relation(fields: [queueId], references: [id], onDelete: Cascade)
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([queueId, userId])
+  @@index([userId])
+}
+
+model DistributionLog {
+  id             String            @id @default(cuid())
+  queueId        String
+  leadId         String
+  assignedUserId String
+  createdAt      DateTime          @default(now())
+  queue          DistributionQueue @relation(fields: [queueId], references: [id], onDelete: Restrict)
+  lead           Lead              @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  assignedUser   User              @relation(fields: [assignedUserId], references: [id], onDelete: Restrict)
+
+  @@index([queueId])
+  @@index([leadId])
+  @@index([assignedUserId])
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
