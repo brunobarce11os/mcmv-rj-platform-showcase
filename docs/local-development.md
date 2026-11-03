@@ -1,9 +1,7 @@
 # Desenvolvimento local
 
 O ambiente local usa Next.js e PostgreSQL em Docker, sem exigir contratação de
-serviços externos. Ainda não há Prisma, modelos de banco ou integração da aplicação
-com o PostgreSQL. As variáveis de provedores reservam a configuração futura;
-os provedores ainda não estão implementados.
+serviços externos. A persistência usa Prisma e um schema público reduzido; a interface ainda não consulta o banco. As variáveis de provedores reservam a configuração futura; os provedores ainda não estão implementados.
 
 ## 1. Requisitos
 
@@ -37,10 +35,7 @@ O arquivo `.env` é ignorado pelo Git. As credenciais públicas do PostgreSQL s�
 exclusivas deste ambiente de desenvolvimento: banco `mcmv_showcase`, usuário
 `showcase` e senha `showcase`.
 
-A `DATABASE_URL` do exemplo foi reservada conforme a configuração planejada e
-não é consumida nesta etapa. Ela não inclui a senha; quando houver integração
-com o banco, a conexão autenticada deverá usar
-`postgresql://showcase:showcase@localhost:5432/mcmv_showcase`.
+A `DATABASE_URL` usa a conexão local `postgresql://showcase:showcase@localhost:5432/mcmv_showcase`, consumida pelo Prisma.
 
 `JWT_SECRET` é um valor de exemplo para desenvolvimento. `NEXT_PUBLIC_APP_URL`
 aponta para `http://localhost:3000`. Os provedores planejados usam `console`
@@ -56,6 +51,16 @@ docker compose ps
 Aguarde o serviço `postgres` indicar `healthy`. O banco fica disponível em
 `localhost:5432`. Na primeira execução, o Docker precisa baixar a imagem
 `postgres:16-alpine`. Os dados ficam no volume persistente `postgres_data`.
+
+Após o banco ficar saudável, execute:
+
+```sh
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+```
+
+Veja [Banco de dados local](database.md) para seed, reset e Prisma Studio.
 
 ## 5. Iniciar a aplicação
 
